@@ -1,0 +1,24 @@
+{
+  "name": "castor-memcopy",
+  "description": "Query Castor using an in-memory data copy.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/mauritsl/node-castor-client",
+  "author": {
+    "name": "Maurits Lawende",
+    "email": "maurits@voodooli.com",
+    "url": "https://github.com/mauritsl"
+  },
+  "license": {
+    "type": "MIT",
+    "url": "https://raw.githubusercontent.com/mauritsl/node-castor-memcopy/master/LICENSE"
+  },
+  "main": "castor-memcopy.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mauritsl/node-castor-memcopy.git"
+  },
+  "dependencies": {
+    "q": ">= 0.9.7",
+    "lodash": ">= 2.4.1"
+  },
+}
