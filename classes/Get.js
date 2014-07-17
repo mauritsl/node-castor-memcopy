@@ -51,56 +51,71 @@
   };
   
   Get.prototype.filter = function(name, value, operator, cs) {
-    operator = typeof operator === 'undefined' ? '===' : operator;
+    operator = typeof operator === 'undefined' ? '==' : operator;
     cs = typeof cs === 'undefined' ? false : cs;
     if (!cs && typeof value === 'string') {
       value = value.toLowerCase();
     }
+    
+    var match = function(testValue) {
+      // Check for regular expression matching.
+      if (value instanceof RegExp) {
+        var match;
+        if (typeof testValue == 'number') {
+          testValue = testValue.toString();
+        }
+        if (typeof testValue == 'string') {
+          match = testValue.match(value);
+        }
+        else {
+          match = false;
+        }
+        if (match) {
+          return operator === '!==' || operator === '!=' ? false : true;
+        }
+        else {
+          return operator === '!==' || operator === '!=' ? true : false;
+        }
+      }
+      
+      if (!cs) {
+        testValue = typeof testValue === 'string' ? testValue.toLowerCase() : testValue;
+      }
+      switch (operator) {
+        case '===':
+          return testValue === value;
+        case '!==':
+          return testValue !== value;
+        case '!=':
+          return testValue != value;
+        case '<':
+          return testValue < value;
+        case '>':
+          return testValue > value;
+        case '<=':
+          return testValue <= value;
+        case '>=':
+          return testValue >= value;
+        case '==':
+        default:
+          return testValue == value;
+      }
+    }
+    
     this._actions.push(function(rows) {
       return rows.filter(function(row) {
         var testValue = row[name];
-        
-        // Check for regular expression matching.
-        if (value instanceof RegExp) {
-          var match;
-          if (typeof testValue == 'number') {
-            testValue = testValue.toString();
-          }
-          if (typeof testValue == 'string') {
-            match = testValue.match(value);
-          }
-          else {
-            match = false;
-          }
-          if (match) {
-            return operator === '!==' || operator === '!=' ? false : true;
-          }
-          else {
-            return operator === '!==' || operator === '!=' ? true : false;
-          }
+        if (testValue instanceof Array) {
+          var setMatch = false;
+          testValue.forEach(function(elementValue) {
+            if (match(elementValue)) {
+              setMatch = true;
+            }
+          });
+          return setMatch;
         }
-        
-        if (!cs) {
-          testValue = typeof testValue === 'string' ? testValue.toLowerCase() : testValue;
-        }
-        switch (operator) {
-          case '==':
-            return testValue === value;
-          case '!==':
-            return testValue === value;
-          case '!=':
-            return testValue === value;
-          case '<':
-            return testValue === value;
-          case '>':
-            return testValue === value;
-          case '<=':
-            return testValue === value;
-          case '>=':
-            return testValue === value;
-          case '===':
-          default:
-            return testValue === value;
+        else {
+          return match(testValue);
         }
       });
     });
