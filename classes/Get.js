@@ -166,6 +166,62 @@
     return this;
   };
   
+  Get.prototype.substitute = function(field, memcopy, keyField) {
+    var substituteScalar = function(value) {
+      var defer = Q.defer();
+      if (value === null) {
+        defer.resolve(null);
+      }
+      else {
+        memcopy.get()
+          .filter(keyField, value)
+          .limit(1)
+        .then(function(rows) {
+          if (rows.valid()) {
+            defer.resolve(rows.current());
+          }
+          defer.resolve(null);
+        }).done();
+      }
+      return defer.promise;
+    };
+    
+    this._actions.push(function(rows) {
+      var defer = Q.defer();
+      var i = -1, next = function() {
+        if (typeof rows[++i] === 'undefined') {
+          defer.resolve(rows);
+          return;
+        }
+        var row = rows[i];
+        if (row[field] instanceof Array) {
+          
+          var newValue = [];
+          var j = -1, nextScalar = function() {
+            if (typeof row[field][++j] === 'undefined') {
+              rows[i][field] = newValue;
+              next();
+              return;
+            }
+            substituteScalar(row[field][j]).then(function(value) {
+              newValue.push(value);
+            }).then(nextScalar).done();
+          };
+          nextScalar();
+          
+        }
+        else {
+          substituteScalar(row[field]).then(function(value) {
+            rows[i][field] = value;
+          }).then(next).done();
+        }
+      };
+      next();
+      return defer.promise;
+    });
+    return this;
+  };
+  
   Get.prototype.orderBy = function(name, direction) {
     this._actions.push(function(rows) {
       return rows.sort(function(a, b) {
@@ -226,8 +282,11 @@
           defer.resolve(rows);
           return;
         }
-        output = self._actions[i](output);
-        next();
+        var result = self._actions[i](output);
+        Q.when(result).then(function(result) {
+          output = result;
+          next();
+        });
       };
       next();
     }).done();

@@ -6,6 +6,7 @@
    * Rows class
    */
   var Rows = function(rows, columns) {
+    this._current = 0;
     this.columns = columns;
     this.rows = rows;
   };

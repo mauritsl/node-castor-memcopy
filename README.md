@@ -136,3 +136,57 @@ query.then(function(rows) {
   copy.destroy();
 });
 ```
+
+## Substitute
+
+Substitute values for a field with rows from another memcopy.
+For example, you have a table "person":
+
+```javascript
+[{
+  name: "Alice",
+  country: 2,
+},{
+  name: "Bob",
+  country: 1,
+}]
+```
+
+And a table "country":
+
+```javascript
+[{
+  id: 1,
+  name: "Australia",
+},{
+  id: 2,
+  name: "Belgium"
+}]
+```
+
+You can substitute the country id's with the following code:
+
+```javascript
+var persons = new MemCopy(db.get('person'));
+var countries = new MemCopy(db.get('country'));
+
+persons.get()
+  .substitute('country', countries, 'id')
+.then(function(rows) {
+  ...
+});
+```
+
+The first argument to ``substitute`` is the fieldname in the basetable.
+The thirth argument is the fieldname in the right table. The value will
+be replaced by the whole row from the "country" table. The output will be:
+
+```javascript
+[{
+  name: "Alice",
+  country: {id: 2, name: "Belgium"},
+},{
+  name: "Bob",
+  country: {id: 1, name: "Australia"},
+}]
+```
