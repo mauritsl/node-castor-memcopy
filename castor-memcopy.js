@@ -66,6 +66,10 @@
     }
   };
   
+  MemCopy.clearCache = function() {
+    data = {};
+  };
+  
   module.exports = MemCopy;
   
 })(this);
