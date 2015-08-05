@@ -46,8 +46,10 @@
   };
   
   MemCopy.prototype.destroy = function() {
-    if (--data[this.signature].clients < 1) {
-      delete data[this.signature];
+    if (typeof data[this.signature] !== 'undefined') {
+      if (--data[this.signature].clients < 1) {
+        delete data[this.signature];
+      }
     }
   };
   
