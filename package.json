@@ -1,7 +1,7 @@
 {
   "name": "castor-memcopy",
   "description": "Query Castor using an in-memory data copy.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/mauritsl/node-castor-client",
   "author": {
     "name": "Maurits Lawende",
